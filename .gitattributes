@@ -1,0 +1,2 @@
+# Keep upstream assets byte-for-byte, including their original whitespace.
+src/resolvent/static/vendor/** -whitespace

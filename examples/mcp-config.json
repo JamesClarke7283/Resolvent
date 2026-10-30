@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "resolvent": {
+      "command": "uv",
+      "args": ["--directory", "/absolute/path/to/Resolvent", "run", "resolvent", "mcp"]
+    }
+  }
+}

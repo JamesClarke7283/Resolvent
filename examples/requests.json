@@ -1,0 +1,7 @@
+[
+  {"operation": "integrate", "expression": "x**2", "parameters": {"bounds": [0, 1]}},
+  {"operation": "differentiate", "expression": "\\sin(x)e^{x}", "syntax": "latex"},
+  {"operation": "solve_system", "expression": "[Eq(x+y,5),Eq(x-y,1)]", "variables": ["x", "y"]},
+  {"operation": "eigenvalues", "expression": "Matrix([[2,1],[1,3]])"},
+  {"operation": "statistics", "expression": "[2,4,4,4,5,5,7,9]"}
+]

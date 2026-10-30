@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="resolvent-token" content="{{ token }}">
+  <meta name="theme-color" content="#176553">
+  <title>Resolvent · Mathematics workbench</title>
+  <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script defer src="{{ url_for('static', filename='vendor/mathlive.min.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+  <a class="skip-link" href="#expression-panel">Skip to expression editor</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="Resolvent home"><span class="brand-mark">r<span>·</span></span><span>resolvent<span class="brand-caption">THE MATHS WORKBENCH</span></span></a>
+      <button id="new-worksheet" class="new-button"><span>+</span> New worksheet <kbd>⌘ N</kbd></button>
+      <div class="nav-label">WORKSPACE</div>
+      <button id="workspace-nav" class="nav-item active"><span class="nav-icon">▤</span> Worksheet <span class="nav-dot"></span></button>
+      <button id="saved-nav" class="nav-item"><span class="nav-icon">▱</span> Saved worksheets <span id="saved-count" class="count">0</span></button>
+      <div class="nav-label toolkit-label">MATHS TOOLKIT <span id="operation-count"></span></div>
+      <nav id="categories" aria-label="Mathematics categories"></nav>
+      <div class="sidebar-bottom">
+        <div class="local-badge"><span class="status-dot"></span><div>Local engine<span>Private. Offline. Yours.</span></div><span class="local-icon">⌂</span></div>
+        <div class="version">Resolvent v{{ version }}<button id="about-button" aria-label="About Resolvent">ⓘ</button></div>
+      </div>
+    </aside>
+
+    <div class="workspace-shell">
+      <header class="topbar">
+        <div class="breadcrumb"><span class="nav-icon">▤</span><span>Workspace</span><span class="crumb-divider">/</span><input id="worksheet-title" aria-label="Worksheet title" value="Untitled worksheet" maxlength="120"></div>
+        <div class="top-actions"><span id="save-state" class="save-state">Not saved yet</span><button id="export-button" class="button quiet"><span>↗</span> Export</button><button id="save-button" class="button secondary"><span>▣</span> Save worksheet</button></div>
+      </header>
+
+      <main class="main-area">
+        <section class="page-heading">
+          <div><div class="eyebrow"><span></span> YOUR THINKING SPACE</div><h1>Let’s work it out.</h1><p>From a first expression to your next discovery.</p></div>
+          <button id="help-button" class="help-button"><span>?</span> Quick guide <span class="arrow">↗</span></button>
+        </section>
+
+        <section id="saved-panel" class="card saved-panel hidden" aria-label="Saved worksheets"><div class="section-heading"><h2>Your worksheets</h2><button id="close-saved" class="icon-button" aria-label="Close saved worksheets">×</button></div><div id="saved-list"></div><div class="import-row"><label for="import-file" class="button secondary">Import worksheet</label><input type="file" id="import-file" accept="application/json,.json" class="visually-hidden"><span>Bring in a Resolvent JSON export.</span></div></section>
+
+        <div class="workbench-grid">
+          <div class="workbench-main">
+            <section class="card editor-card" id="expression-panel" aria-labelledby="editor-heading">
+              <div class="card-heading"><h2 id="editor-heading"><span class="step-number">01</span> Your expression</h2><div class="tabs" role="tablist" aria-label="Input syntax"><button role="tab" aria-selected="true" class="tab active" data-mode="visual">Visual</button><button role="tab" aria-selected="false" class="tab" data-mode="latex">LaTeX</button><button role="tab" aria-selected="false" class="tab" data-mode="python">Python</button></div></div>
+              <div class="expression-content">
+                <div id="visual-editor"><math-field id="math-input" aria-label="Visual mathematics expression">x^3-3x</math-field></div>
+                <textarea id="code-input" spellcheck="false" aria-label="Expression source" placeholder="Enter an expression…" class="hidden"></textarea>
+                <div class="editor-hint"><span id="syntax-hint">Write maths as you think it.</span><button id="clear-expression" class="text-button">Clear</button></div>
+              </div>
+              {% raw %}<div id="math-toolbar" class="math-toolbar" aria-label="Insert mathematical notation"><button data-insert="\\frac{#0}{#?}" title="Fraction">a⁄b</button><button data-insert="\\sqrt{#0}" title="Square root">√</button><button data-insert="#0^{#?}" title="Power">xⁿ</button><span></span><button data-insert="\\int_{#?}^{#?}#0\\,dx" title="Integral">∫</button><button data-insert="\\sum_{n=1}^{#?}#0" title="Sum">∑</button><button data-insert="\\sin(#0)" title="Sine">sin</button><span></span><button data-insert="\\pi" title="Pi">π</button><button data-insert="\\infty" title="Infinity">∞</button><button data-insert="\\theta" title="Theta">θ</button><button id="keyboard-button" class="keyboard-button" title="Toggle maths keyboard" aria-label="Toggle maths keyboard">⌨</button></div>{% endraw %}
+              <div class="editor-footer"><div class="input-note"><span class="status-dot"></span><span id="input-type">LaTeX notation</span></div><span class="shortcut-hint"><kbd>Shift</kbd> + <kbd>Enter</kbd> to calculate</span></div>
+            </section>
+
+            <section class="card operation-card" aria-labelledby="operation-heading">
+              <div class="card-heading"><h2 id="operation-heading"><span class="step-number">02</span> Choose an operation</h2><button id="browse-button" class="text-button">Browse all <span>↗</span></button></div>
+              <div id="quick-operations" class="quick-operations"></div>
+              <div id="operation-library" class="operation-library hidden"><div class="search-wrap"><span>⌕</span><input id="operation-search" type="search" placeholder="Search operations…" aria-label="Search operations"></div><div id="library-results"></div></div>
+              <div class="selected-operation"><span id="selected-symbol" class="operation-symbol">∂</span><div><strong id="selected-name">Differentiate</strong><p id="selected-description"></p></div></div>
+              <div class="parameter-fields"><div class="field"><label for="variable-input">With respect to</label><input id="variable-input" value="x" placeholder="x" autocomplete="off"></div><div class="field"><label for="variables-input">Variables <span>for systems & vectors</span></label><input id="variables-input" placeholder="x, y, z" autocomplete="off"></div><div id="operation-parameters" class="dynamic-parameters"></div></div>
+              <details class="advanced"><summary>Assumptions & precision <span>+</span></summary><div class="advanced-grid"><div class="field"><label for="assumptions-input">Symbol assumptions (JSON)</label><textarea id="assumptions-input" spellcheck="false" placeholder='{"x": {"positive": true}}'></textarea></div><div class="field"><label for="precision-input">Numerical precision</label><input id="precision-input" type="number" min="2" max="100" value="16"></div></div></details>
+              <div class="compute-row"><button id="example-button" class="button quiet"><span>✧</span> Load example</button><button id="compute-button" class="button primary" disabled><span id="compute-label">Calculate</span><span id="compute-arrow">↗</span></button></div>
+            </section>
+
+            <section class="card result-card" aria-labelledby="result-heading" aria-live="polite">
+              <div class="card-heading"><h2 id="result-heading"><span class="step-number">03</span> The result</h2><span id="result-status" class="result-status">READY WHEN YOU ARE</span></div>
+              <div id="error-box" role="alert" class="error-box hidden"></div>
+              <div id="result-empty" class="empty-result"><div class="empty-symbol">=</div><h3>A little curiosity goes a long way.</h3><p>Enter an expression and calculate to see it unfold.</p></div>
+              <div id="result-loading" class="result-loading hidden"><span class="spinner"></span><div>Working through your expression…<small>Complex problems can take a moment.</small></div></div>
+              <div id="result-content" class="hidden"><div id="result-math" class="result-math"></div><div id="numeric-row" class="numeric-row hidden"><span>APPROXIMATION</span><code id="numeric-result"></code></div><div id="result-warnings" class="result-warnings"></div><div id="plot-container" class="plot-container hidden"><div id="plot-legend"></div><svg id="plot-svg" viewBox="0 0 760 340" role="img" aria-label="Interactive function plot"></svg><div class="plot-footer"><span id="plot-coordinate">Move over the plot to inspect values</span><div><button id="zoom-in" class="icon-button" aria-label="Zoom in">+</button><button id="zoom-out" class="icon-button" aria-label="Zoom out">−</button></div></div></div><div class="result-actions"><div><button id="copy-result" class="button quiet">Copy result</button><button id="copy-latex" class="button quiet">Copy LaTeX</button><button id="reuse-result" class="button quiet">Use result ↗</button></div><span id="result-timing"></span></div><details class="raw-result"><summary>View structured result</summary><pre id="result-json"></pre></details></div>
+            </section>
+            <div class="workspace-footnote"><span>∴</span> Exact where possible. Clear when approximate.</div>
+          </div>
+
+          <aside class="context-panel" aria-label="Worksheet context">
+            <section class="inspiration-card"><div class="inspiration-top"><span class="sparkle">✧</span><span>A PLACE FOR BIG IDEAS</span></div><div class="decorative-math" aria-hidden="true">∫ <span>f(x)</span> dx</div><h3>One engine.<br>Many possibilities.</h3><p>Explore the connections between algebra, calculus, and everything in between.</p><div class="inspiration-tag">SYMBOLIC + NUMERICAL</div></section>
+            <section class="history-section"><div class="section-heading"><h2>Calculation history</h2><button id="clear-history" class="text-button">Clear</button></div><div id="history-list"><div class="history-empty"><span>↶</span><p>Your steps, kept together.<br>Calculations appear here.</p></div></div></section>
+            <section class="quick-start"><h2>Start with an idea</h2><button data-preset="integral"><span>∫</span><div>The area under a curve<small>A definite integral</small></div><span>↗</span></button><button data-preset="equation"><span>ƒ</span><div>Find the unknown<small>Solve a quadratic</small></div><span>↗</span></button><button data-preset="plot"><span>∿</span><div>See a function’s shape<small>Plot sine & cosine</small></div><span>↗</span></button></section>
+            <div class="privacy-note"><span>◇</span><p>Your calculations stay on your device.<br>No account. No cloud. Just maths.</p></div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  </div>
+  <dialog id="help-dialog"><div class="dialog-heading"><div class="eyebrow">A QUICK GUIDE</div><button id="close-help" class="icon-button" aria-label="Close guide">×</button></div><h2>A notation for every thought.</h2><p>Use <strong>Visual</strong> to write with the maths keyboard, <strong>LaTeX</strong> for notation such as <code>\frac{x^2}{2}</code>, or <strong>Python</strong> for <code>sin(x) * exp(x)</code>.</p><div class="guide-grid"><div><h3>Expressions</h3><p>Python requires explicit multiplication: <code>2*x</code>. Use <code>**</code> for powers, <code>Eq(x**2, 4)</code> for equations, and <code>Matrix([[1,2],[3,4]])</code> for matrices. Decimal inputs are exact rationals.</p></div><div><h3>Operations</h3><p>Choose an operation, then set variables and parameters. Parameters always use Python maths syntax, even with LaTeX input. Load an example to see the expected format.</p></div><div><h3>Worksheets</h3><p>Successful calculations become worksheet cells. Save them locally, export JSON, or open Saved worksheets to import. Reopen any history item to inspect its inputs and result.</p></div><div><h3>Boundaries</h3><p>Supported by SymPy; some problems have no known closed form. Unevaluated results and conditions are shown explicitly. Sampled plots can miss discontinuities. The engine is not a general Python interpreter.</p></div></div><div class="guide-cli"><strong>Also at home in your terminal.</strong><code>uv run resolvent calc integrate 'x**2' --param 'bounds=[0,1]'</code><code>uv run resolvent mcp</code></div><button id="guide-done" class="button primary">Let’s explore ↗</button></dialog>
+  <dialog id="confirm-dialog"><h2 id="confirm-title">Start a fresh worksheet?</h2><p id="confirm-message">Unsaved calculations will be removed from this workspace.</p><div class="dialog-actions"><button id="confirm-cancel" class="button secondary">Cancel</button><button id="confirm-ok" class="button primary">Continue</button></div></dialog>
+  <div id="toast" role="status" class="toast hidden"></div>
+</body>
+</html>
